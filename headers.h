@@ -20,3 +20,6 @@ typedef struct node {
 	int level; 
 	struct node * left, *right, *parent;
 }NODE;
+
+void open_file(vector<letter> &freq, string file_name);
+void sorted_freq(vector<letter> &freq);
