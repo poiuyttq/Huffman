@@ -20,3 +20,5 @@ typedef struct node {
 	int level; 
 	struct node * left, *right, *parent;
 }NODE;
+
+void sorted_nodes_created(vector<struct node *> &nodes, vector<letter> &freq);
