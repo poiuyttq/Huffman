@@ -25,3 +25,4 @@ void open_file(vector<letter> &freq, string file_name);
 void sorted_freq(vector<letter> &freq);
 void sorted_nodes_created(vector<struct node *> &nodes, vector<letter> &freq);
 bool support_stable_sort_func(struct node *a, struct node *b);
+void haffman_tree(vector<struct node *> &nodes);

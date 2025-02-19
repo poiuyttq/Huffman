@@ -55,3 +55,27 @@ bool support_stable_sort_func(struct node *a, struct node *b)
 {
     return a->freq < b->freq;
 }
+void haffman_tree(vector<struct node *> &nodes)
+{
+    if (nodes.size() == 1)
+    {
+        nodes[0]->code = "0";
+        return;
+    }
+    for (int i = 1; i < nodes.size(); i += 2)
+    {
+        struct node *new_node = new node;
+        new_node->freq = nodes[i - 1]->freq + nodes[i]->freq;
+        new_node->symb = 0;
+        new_node->right = nodes[i - 1];
+        new_node->left = nodes[i];
+        new_node->parent = NULL;
+        new_node->isSymb = 0;
+        new_node->level = 0;
+        new_node->code = '\0';
+        nodes[i - 1]->parent = new_node;
+        nodes[i]->parent = new_node;
+        nodes.push_back(new_node);
+        stable_sort(nodes.begin(), nodes.end(), support_stable_sort_func);
+    }
+}
