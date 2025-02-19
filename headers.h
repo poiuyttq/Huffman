@@ -22,3 +22,5 @@ typedef struct node {
 }NODE;
 
 void sorted_nodes_created(vector<struct node *> &nodes, vector<letter> &freq);
+void inorder(struct node* root,string code);
+void print_code_to_file(vector <struct node*> &nodes, string file_name, string file_name1);
