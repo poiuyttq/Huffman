@@ -1,7 +1,38 @@
 #include "headers.h"
 #include <iostream>
 #include <vector>
+
 using namespace std;
+
+void open_file(vector<letter> &freq, string file_name)
+{
+    FILE *fr = fopen(file_name.c_str(), "rb");
+    fseek(fr, 0L, SEEK_END);
+    long length = ftell(fr);
+    fseek(fr, 0, SEEK_SET);
+    for (int i = 0; i < length; ++i)
+    {
+        unsigned char c = fgetc(fr);
+        freq[c].key = c;
+        freq[c].count++;
+    }
+
+    fclose(fr);
+}
+void sorted_freq(vector<letter> &freq)
+{
+
+    for (int i = 0; i < freq.size(); ++i)
+    {
+        for (int j = i + 1; j < freq.size(); ++j)
+        {
+            if (freq[i].count > freq[j].count)
+            {
+                swap(freq[i], freq[j]);
+            }
+        }
+    }
+}
 void sorted_nodes_created(vector<struct node *> &nodes, vector<letter> &freq)
 {
     for (int i = 0; i < SIZE; ++i)
@@ -19,6 +50,34 @@ void sorted_nodes_created(vector<struct node *> &nodes, vector<letter> &freq)
             new_node->code = '\0';
             nodes.push_back(new_node);
         }
+    }
+}
+bool support_stable_sort_func(struct node *a, struct node *b)
+{
+    return a->freq < b->freq;
+}
+void haffman_tree(vector<struct node *> &nodes)
+{
+    if (nodes.size() == 1)
+    {
+        nodes[0]->code = "0";
+        return;
+    }
+    for (int i = 1; i < nodes.size(); i += 2)
+    {
+        struct node *new_node = new node;
+        new_node->freq = nodes[i - 1]->freq + nodes[i]->freq;
+        new_node->symb = 0;
+        new_node->right = nodes[i - 1];
+        new_node->left = nodes[i];
+        new_node->parent = NULL;
+        new_node->isSymb = 0;
+        new_node->level = 0;
+        new_node->code = '\0';
+        nodes[i - 1]->parent = new_node;
+        nodes[i]->parent = new_node;
+        nodes.push_back(new_node);
+        stable_sort(nodes.begin(), nodes.end(), support_stable_sort_func);
     }
 }
 void inorder(struct node *root, string code)
@@ -124,10 +183,107 @@ void print_code_to_file(vector<struct node *> &nodes, string file_name, string f
     fputs ("\n", fr1);
     fseek(fr1, 0, SEEK_SET);
 
-    //сверху map_size
+    //сверу map_size
     //снизу lastByteEffectiveBits
 
     fclose(fr3);
     fclose(fr1);
     
 }
+
+
+
+void decode(string file_name1, string file_name2){
+    
+    FILE *fr3 = fopen(file_name1.c_str(), "rb");
+    FILE *fr2 = fopen(file_name2.c_str(), "wb");
+    fseek(fr3, 0L, SEEK_END);
+    long length = ftell(fr3);
+    fseek(fr3, 0, SEEK_SET);
+    fseek(fr2, 0, SEEK_SET);
+    int lastByteEffectiveBits;
+    int map_size;   
+    size_t last = (size_t)lastByteEffectiveBits;
+    fscanf(fr3, "%d", &map_size);
+    fscanf(fr3, "%d", &lastByteEffectiveBits);
+    //cout << "map_size " << map_size << endl;
+    //cout << "lastByteEffectiveBits " << lastByteEffectiveBits << endl;
+
+    std::map<char, string> myMap;
+    fgetc(fr3);
+
+    for (int i = 0; i < map_size; ++i)
+    {
+        char c = fgetc(fr3);
+        struct node *new_node = new node;
+        new_node->symb = c;
+        fgetc(fr3);
+        string code;
+
+        while (c != '\n')
+        {
+
+            char new_c = fgetc(fr3);
+            if (new_c == '1'){
+
+            }
+            if (new_c == '\n'){
+                break;
+            }
+            code += new_c;
+        }
+        new_node->code = code;
+        myMap.insert(std::pair<char, string>(c, code));
+        delete new_node;
+    }
+
+
+    std::map<string, char> myMap2;
+    for (auto it = myMap.begin(); it != myMap.end();++it){
+        myMap2.insert(std::pair<string, char>( it->second,it->first));
+    }
+    for (auto it = myMap2.begin(); it != myMap2.end();++it){
+        //cout<<it->first<< " "<<it->second <<endl;
+    }
+    long length1 = ftell(fr3);
+    string buff = "";
+    for (int i = 0;i < length-length1-1;++i){
+        char c = fgetc(fr3);
+        bitset<8> bs(c);
+        for (int j = 7; j >= 0; j--){
+            if (bs[j] == 1){
+                buff += "1";
+            } else {
+                buff += "0";
+            }
+            //cout << buff.c_str();
+            if (myMap2.find(buff.c_str()) != myMap2.end()){
+            
+                char curr = myMap2.find(buff)->second;
+                fputc(curr, fr2);
+                buff.clear(); 
+            }
+        }
+    }
+    char c = fgetc(fr3) ;
+    bitset<8> bs(c);
+    for (int j = lastByteEffectiveBits-1; j >= 0; j--){
+        if (bs[j] == 1){
+            buff += "1";
+        } else {
+            buff += "0";
+        }
+        //cout << buff.c_str();
+        if (myMap2.find(buff.c_str()) != myMap2.end()){
+        
+            char curr = myMap2.find(buff)->second;
+            fputc(curr, fr2);
+            buff.clear(); 
+        }
+    }
+    fclose(fr2);
+    fclose(fr3);
+
+}
+
+    
